@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#176b87">
+<title>نتيجتي | مساعد فهم التحاليل</title>
+<style>
+:root{--blue:#176b87;--blue2:#0d5069;--mint:#eaf6f8;--ink:#183943;--muted:#607b82;--line:#d8e8ec;--white:#fff;--amber:#79550c;--amberbg:#fff6dd}
+*{box-sizing:border-box}
+body{margin:0;background:#f3f8f9;color:var(--ink);font-family:Tahoma,Arial,sans-serif;line-height:1.75}
+header{background:linear-gradient(135deg,var(--blue2),var(--blue));color:#fff;text-align:center;padding:25px 16px 30px;border-radius:0 0 28px 28px}
+.logo{font-size:42px}h1{margin:4px 0;font-size:30px}header p{margin:5px auto 0;max-width:460px}
+main{width:min(760px,100%);margin:22px auto;padding:0 14px 25px}
+.card{background:#fff;border:1px solid #e3eef0;border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 5px 20px #164d4008}
+h2{font-size:20px;margin:0 0 8px}.muted{color:var(--muted);font-size:14px;margin-top:0}
+.upload{border:2px dashed #8fc3ce;background:#f8fcfd;border-radius:15px;padding:18px;text-align:center}
+.upload .icon{font-size:38px}input[type=file]{display:block;width:100%;margin-top:12px}
+#preview{display:none;width:100%;max-height:420px;object-fit:contain;margin-top:14px;border-radius:12px;background:#f1f4f3}
+button{border:0;border-radius:12px;padding:13px 12px;font-size:16px;font-family:inherit;cursor:pointer}
+button:disabled{opacity:.55;cursor:not-allowed}
+.primary{background:var(--blue);color:#fff}.secondary{background:var(--mint);color:var(--blue2)}
+.buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:13px}
+.status{display:none;margin-top:13px;background:#f2f8f9;border-radius:10px;padding:11px;font-size:14px}
+progress{width:100%;height:10px;accent-color:var(--blue)}
+label{display:block;font-weight:bold;margin:10px 0 5px}
+textarea,input[type=text]{width:100%;padding:12px;border:1px solid var(--line);border-radius:11px;font:16px/1.8 Tahoma,Arial,sans-serif;color:var(--ink);background:#fcfefe}
+textarea{min-height:125px;resize:vertical}
+.notice{background:var(--amberbg);color:var(--amber);padding:13px;border-radius:12px;font-size:14px}
+.small{font-size:12px;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:8px 16px 24px}
+@media(max-width:430px){.buttons{grid-template-columns:1fr}.card{padding:15px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo" aria-hidden="true">🧪</div>
+  <h1>نتيجتي</h1>
+  <p>مساعد مبسّط لفهم نتائج التحاليل الطبية</p>
+</header>
+<main>
+  <section class="card">
+    <h2>1. أضيفي صورة نتيجة التحليل</h2>
+    <p class="muted">اختاري صورة واضحة أو صوّري التقرير. يمكنك أيضاً كتابة القيم يدوياً في الأسفل.</p>
+    <div class="upload">
+      <div class="icon" aria-hidden="true">📄</div>
+      <strong>صورة تقرير المعمل</strong>
+      <input id="fileInput" type="file" accept="image/*" capture="environment">
+      <img id="preview" alt="معاينة صورة نتيجة التحليل">
+    </div>
+    <div class="buttons">
+      <button class="primary" id="ocrBtn" disabled>استخراج النص من الصورة</button>
+      <button class="secondary" id="clearBtn" type="button">مسح والبدء من جديد</button>
+    </div>
+    <div id="status" class="status" role="status" aria-live="polite">
+      <span id="statusText">جارٍ تجهيز القراءة...</span>
+      <progress id="progress" max="100" value="0"></progress>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. راجعي النص والقيم</h2>
+    <p class="muted">قارني كل رقم ووحدة ومدى مرجعي بالتقرير الأصلي؛ فقد تخطئ القراءة الآلية.</p>
+    <label for="reportText">النص المستخرج أو بيانات التحليل</label>
+    <textarea id="reportText" placeholder="مثال: Hemoglobin (Hb): 12.5 g/dL — اكتبي القيم كما تظهر في التقرير..."></textarea>
+    <div class="buttons">
+      <button class="secondary" id="copyBtn" type="button">نسخ النص</button>
+      <button class="secondary" id="saveBtn" type="button">حفظ النص في ملف</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. معلومات إضافية اختيارية</h2>
+    <p class="muted">هذه المعلومات تساعد على وضع النتيجة في سياقها، لكنها لا تكفي وحدها للتشخيص.</p>
+    <label for="age">العمر (اختياري)</label>
+    <input id="age" type="text" inputmode="numeric" placeholder="مثال: 25 سنة">
+    <label for="sex">الجنس المسجل في التقرير (اختياري)</label>
+    <input id="sex" type="text" placeholder="مثال: أنثى / ذكر / اتركيه فارغاً">
+    <label for="reason">سبب إجراء التحليل أو الأعراض (اختياري)</label>
+    <textarea id="reason" style="min-height:80px" placeholder="اكتبي السبب إن رغبتِ، ولا تضيفي اسمك أو معلوماتك الشخصية."></textarea>
+    <button class="primary" id="explainBtn" type="button" style="width:100%;margin-top:14px">عرض إرشادات فهم النتيجة</button>
+    <div id="guidance" class="notice" style="display:none;margin-top:14px"></div>
+    <p class="small">هذه النسخة لا ترسل النتائج إلى طبيب ولا تتصل بذكاء اصطناعي خارجي؛ إنها نموذج أولي لرفع الصورة واستخراج النص فقط.</p>
+  </section>
+
+  <section class="card">
+    <h2>🛡️ تنبيه صحي مهم</h2>
+    <div class="notice">
+      هذا التطبيق لا يشخّص الأمراض ولا يستبدل الطبيب. نتيجة التحليل تُفسَّر حسب المجال المرجعي الخاص بالمعمل، والعمر، والأعراض، والأدوية، والتاريخ الصحي. لا توقفي دواءً ولا تبدئي علاجاً بناءً على التطبيق. إذا كانت النتيجة موصوفة بأنها حرجة، أو لديك أعراض شديدة أو مفاجئة، تواصلي فوراً مع جهة طبية.
+    </div>
+  </section>
+</main>
+<footer>نتيجتي © 2026 — نموذج أولي تعليمي. احتفظي بالتقرير الأصلي وراجعيه مع مختص.</footer>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+const fileInput=document.getElementById('fileInput');
+const preview=document.getElementById('preview');
+const ocrBtn=document.getElementById('ocrBtn');
+const clearBtn=document.getElementById('clearBtn');
+const reportText=document.getElementById('reportText');
+const statusBox=document.getElementById('status');
+const statusText=document.getElementById('statusText');
+const progress=document.getElementById('progress');
+let selectedFile=null, previewUrl=null, worker=null;
+
+fileInput.addEventListener('change',()=>{
+ const file=fileInput.files&&fileInput.files[0]; if(!file)return;
+ if(!file.type.startsWith('image/')){alert('اختاري ملف صورة صحيحاً.');fileInput.value='';return;}
+ selectedFile=file;
+ if(previewUrl)URL.revokeObjectURL(previewUrl);
+ previewUrl=URL.createObjectURL(file);
+ preview.src=previewUrl;preview.style.display='block';ocrBtn.disabled=false;
+ statusBox.style.display='none';
+});
+
+ocrBtn.addEventListener('click',async()=>{
+ if(!selectedFile){alert('اختاري صورة التقرير أولاً.');return;}
+ if(!window.Tesseract){alert('تعذر تحميل أداة قراءة النصوص. تحققي من الإنترنت.');return;}
+ ocrBtn.disabled=true;statusBox.style.display='block';progress.value=0;
+ statusText.textContent='جارٍ تشغيل قارئ النصوص...';
+ try{
+  if(!worker){
+   worker=await Tesseract.createWorker(['ara','eng'],1,{
+    logger:m=>{
+     if(m.status)statusText.textContent=m.status==='recognizing text'?'جارٍ استخراج النص...':'جارٍ تجهيز أداة القراءة...';
+     if(typeof m.progress==='number')progress.value=Math.round(m.progress*100);
+    }
+   });
+  }
+  const {data}=await worker.recognize(selectedFile);
+  const extracted=(data.text||'').trim();
+  reportText.value=extracted||'لم يتم استخراج نص واضح. جرّبي صورة أوضح أو اكتبي القيم يدوياً.';
+  statusText.textContent=extracted?'انتهت محاولة الاستخراج. تحققي من كل رقم ووحدة.':'لم يتم العثور على نص واضح.';
+  progress.value=100;
+ }catch(e){
+  console.error(e);statusText.textContent='تعذرت القراءة. تحققي من الاتصال وحاولي مجدداً.';
+  alert('حدث خطأ أثناء قراءة الصورة.');
+ }finally{ocrBtn.disabled=false;}
+});
+
+clearBtn.addEventListener('click',()=>{
+ fileInput.value='';selectedFile=null;
+ if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=null;
+ preview.removeAttribute('src');preview.style.display='none';
+ reportText.value='';document.getElementById('age').value='';
+ document.getElementById('sex').value='';document.getElementById('reason').value='';
+ statusBox.style.display='none';progress.value=0;ocrBtn.disabled=true;
+ document.getElementById('guidance').style.display='none';
+});
+
+document.getElementById('copyBtn').addEventListener('click',async()=>{
+ if(!reportText.value.trim()){alert('لا يوجد نص لنسخه.');return;}
+ try{await navigator.clipboard.writeText(reportText.value);alert('تم نسخ النص.');}
+ catch{reportText.select();document.execCommand('copy');alert('حددي النص وانسخيه إذا لم يتم النسخ تلقائياً.');}
+});
+document.getElementById('saveBtn').addEventListener('click',()=>{
+ if(!reportText.value.trim()){alert('لا يوجد نص لحفظه.');return;}
+ const blob=new Blob([reportText.value],{type:'text/plain;charset=utf-8'});
+ const url=URL.createObjectURL(blob);const a=document.createElement('a');
+ a.href=url;a.download='natijati-lab-text.txt';a.click();URL.revokeObjectURL(url);
+});
+document.getElementById('explainBtn').addEventListener('click',()=>{
+ const box=document.getElementById('guidance');
+ box.textContent='لشرح النتيجة بأمان: قارني كل قيمة بالمدى المرجعي المطبوع بجانبها، وتأكدي من اسم الفحص والوحدة. لا يمكن اعتبار القيمة مرتفعة أو منخفضة اعتماداً على رقم وحده، ولا يمكن لهذا النموذج تفسير النص تلقائياً أو تشخيص حالة. يمكنك مشاركة القيم مع طبيب أو مختص صحي لشرحها في سياقها.';
+ box.style.display='block';
+});
+window.addEventListener('beforeunload',()=>{if(worker)worker.terminate();if(previewUrl)URL.revokeObjectURL(previewUrl);});
+</script>
+</body>
+</html>
